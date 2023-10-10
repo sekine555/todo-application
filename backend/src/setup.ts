@@ -1,7 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-// import { createRouter } from "@/infrastructure/router";
+import { createRouter } from "@/infrastructure/router";
 // import { AllExceptionFilter } from "./domain/Error/filter/AllExceptionFilter";
 
 const setup = (server: express.Express): express.Express => {
@@ -43,7 +43,7 @@ const setup = (server: express.Express): express.Express => {
   });
 
   // Routerの設定
-  // server.use("/api/v1", createRouter());
+  server.use("/api/v1", createRouter());
   // 共通のエラーハンドリングミドルウェアの設定
   // server.use(AllExceptionFilter);
 
