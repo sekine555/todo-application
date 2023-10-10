@@ -5,7 +5,7 @@ export class TaskDto {
   constructor(task: Task) {
     this.id = task.id;
     this.name = task.name;
-    this.status = task.status;
+    this.status = task.status.getValue();
     this.registrationDate = task.registrationDate;
     this.lastModifiedDate = task.lastModifiedDate;
     this.genreDto = new GenreDto(task.genre);
