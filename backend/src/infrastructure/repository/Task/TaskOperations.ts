@@ -18,12 +18,30 @@ export class TaskOperations extends BaseMySqlOperations<TaskEntity> {
     return response;
   }
 
+  public async fetchTaskById(
+    entityManager: EntityManager,
+    taskId: number
+  ): Promise<TaskEntity> {
+    const repository = await this.getRepository(entityManager);
+    return await repository.findOne({
+      where: {
+        id: taskId,
+      },
+    });
+  }
+
   public async saveTask(
     entityManager: EntityManager,
     taskEntity: TaskEntity
   ): Promise<TaskEntity> {
     const repository = await this.getRepository(entityManager);
-    return await repository.save(taskEntity);
+    const savedTaskEntity = await repository.save(taskEntity);
+    return await repository.findOne({
+      where: {
+        id: savedTaskEntity.id,
+      },
+      relations: ["genre"],
+    });
   }
 
   public async deleteTask(

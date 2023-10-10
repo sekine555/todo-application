@@ -3,7 +3,8 @@ import { inject, injectable } from "inversify";
 import "reflect-metadata";
 import ITaskService from "./ITaskService";
 import { TaskDto } from "./TaskDto";
-import { TaskSaveCommand } from "./TaskSaveCommand";
+import { TaskCreateCommand } from "./TaskCreateCommand";
+import { TaskUpdateCommand } from "./TaskUpdateCommand";
 import ITaskRepository from "@/domain/Task/ITaskRepository";
 
 @injectable()
@@ -22,17 +23,23 @@ class TaskService implements ITaskService {
     return tasks.map((task) => new TaskDto(task));
   }
 
-  findById(id: number): Promise<TaskDto> {
-    throw new Error("Method not implemented.");
+  public async findById(id: number): Promise<TaskDto> {
+    const task = await this._taskRepository.fetchById(id);
+    return new TaskDto(task);
   }
-  create(task: TaskSaveCommand): Promise<TaskDto> {
-    throw new Error("Method not implemented.");
+
+  public async create(task: TaskCreateCommand): Promise<TaskDto> {
+    const newTask = await this._taskRepository.create(task);
+    return new TaskDto(newTask);
   }
-  update(task: TaskSaveCommand): Promise<TaskDto> {
-    throw new Error("Method not implemented.");
+
+  public async update(task: TaskUpdateCommand): Promise<TaskDto> {
+    const updatedTask = await this._taskRepository.update(task);
+    return new TaskDto(updatedTask);
   }
-  delete(id: number): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  public async delete(id: number): Promise<void> {
+    await this._taskRepository.delete(id);
   }
 }
 

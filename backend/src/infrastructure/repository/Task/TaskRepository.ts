@@ -1,4 +1,5 @@
-import { TaskSaveCommand } from "@/application/Task/TaskSaveCommand";
+import { TaskCreateCommand } from "@/application/Task/TaskCreateCommand";
+import { TaskUpdateCommand } from "@/application/Task/TaskUpdateCommand";
 import ITaskRepository from "@/domain/Task/ITaskRepository";
 import { Task } from "@/domain/Task/Task";
 import { inject, injectable } from "inversify";
@@ -6,6 +7,7 @@ import "reflect-metadata";
 import { TYPES } from "@/config/types";
 import DataSourceManager from "../common/DataSourceManager";
 import { TaskOperations } from "./TaskOperations";
+import { TaskEntity } from "@/infrastructure/entity/TaskEntity";
 
 @injectable()
 class TaskRepository implements ITaskRepository {
@@ -34,17 +36,68 @@ class TaskRepository implements ITaskRepository {
     }
   }
 
-  fetchById(id: number): Promise<Task> {
-    throw new Error("Method not implemented.");
+  public async fetchById(id: number): Promise<Task> {
+    try {
+      const db = await this._dataSourceManager.initialize();
+      const taskEntity = await db.transaction(async (txManager) => {
+        return await this._taskOperations.fetchTaskById(txManager, id);
+      });
+      return new Task(taskEntity);
+    } catch (error) {
+      throw error;
+    } finally {
+      await this._dataSourceManager.destroy();
+    }
   }
-  create(task: TaskSaveCommand): Promise<Task> {
-    throw new Error("Method not implemented.");
+
+  public async create(task: TaskCreateCommand): Promise<Task> {
+    try {
+      const db = await this._dataSourceManager.initialize();
+      const newTaskEntity = new TaskEntity();
+      newTaskEntity.genreId = task.genreId;
+      newTaskEntity.name = task.name;
+      newTaskEntity.status = task.status.getValue();
+      const savedTaskEntity = await db.transaction(async (txManager) => {
+        return await this._taskOperations.saveTask(txManager, newTaskEntity);
+      });
+      return new Task(savedTaskEntity);
+    } catch (error) {
+      throw error;
+    } finally {
+      await this._dataSourceManager.destroy();
+    }
   }
-  update(task: TaskSaveCommand): Promise<Task> {
-    throw new Error("Method not implemented.");
+
+  public async update(task: TaskUpdateCommand): Promise<Task> {
+    try {
+      const db = await this._dataSourceManager.initialize();
+      const taskEntity = new TaskEntity();
+      taskEntity.id = task.id;
+      taskEntity.genreId = task.genreId;
+      taskEntity.name = task.name;
+      taskEntity.status = task.status.getValue();
+      const savedTaskEntity = await db.transaction(async (txManager) => {
+        return await this._taskOperations.saveTask(txManager, taskEntity);
+      });
+      return new Task(savedTaskEntity);
+    } catch (error) {
+      throw error;
+    } finally {
+      await this._dataSourceManager.destroy();
+    }
   }
-  delete(id: number): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  public async delete(id: number): Promise<void> {
+    try {
+      const db = await this._dataSourceManager.initialize();
+      await db.transaction(async (txManager) => {
+        await this._taskOperations.deleteTask(txManager, id);
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      await this._dataSourceManager.destroy();
+    }
   }
 }
 
