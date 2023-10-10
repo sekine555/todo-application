@@ -8,6 +8,7 @@ import { TYPES } from "@/config/types";
 import DataSourceManager from "../common/DataSourceManager";
 import { TaskOperations } from "./TaskOperations";
 import { TaskEntity } from "@/infrastructure/entity/TaskEntity";
+import DatabaseOperationException from "@/domain/Error/exception/DatabaseOperationException";
 
 @injectable()
 class TaskRepository implements ITaskRepository {
@@ -30,7 +31,9 @@ class TaskRepository implements ITaskRepository {
       });
       return taskEntities.map((taskEntity) => new Task(taskEntity));
     } catch (error) {
-      throw error;
+      throw new DatabaseOperationException(
+        `@TaskRepository >>> fetchAll error: ${error.message}`
+      );
     } finally {
       await this._dataSourceManager.destroy();
     }
@@ -44,7 +47,9 @@ class TaskRepository implements ITaskRepository {
       });
       return new Task(taskEntity);
     } catch (error) {
-      throw error;
+      throw new DatabaseOperationException(
+        `@TaskRepository >>> fetchById error: ${error.message}`
+      );
     } finally {
       await this._dataSourceManager.destroy();
     }
@@ -62,7 +67,9 @@ class TaskRepository implements ITaskRepository {
       });
       return new Task(savedTaskEntity);
     } catch (error) {
-      throw error;
+      throw new DatabaseOperationException(
+        `@TaskRepository >>> create error: ${error.message}`
+      );
     } finally {
       await this._dataSourceManager.destroy();
     }
@@ -81,7 +88,9 @@ class TaskRepository implements ITaskRepository {
       });
       return new Task(savedTaskEntity);
     } catch (error) {
-      throw error;
+      throw new DatabaseOperationException(
+        `@TaskRepository >>> update error: ${error.message}`
+      );
     } finally {
       await this._dataSourceManager.destroy();
     }
@@ -94,7 +103,9 @@ class TaskRepository implements ITaskRepository {
         await this._taskOperations.deleteTask(txManager, id);
       });
     } catch (error) {
-      throw error;
+      throw new DatabaseOperationException(
+        `@TaskRepository >>> delete error: ${error.message}`
+      );
     } finally {
       await this._dataSourceManager.destroy();
     }

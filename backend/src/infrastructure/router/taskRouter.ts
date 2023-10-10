@@ -6,6 +6,7 @@ import TaskController from "@/interface/controller/Task/TaskController";
 import { TaskCreateRequest } from "@/interface/controller/Task/TaskCreateRequest";
 import { TaskUpdateRequest } from "@/interface/controller/Task/TaskUpdateRequest";
 import { TaskIdRequest } from "@/interface/controller/Task/TaskIdRequest";
+import { validate } from "@/infrastructure/middleware/validate";
 
 export const createTaskRouter = () => {
   const router = express.Router();
@@ -20,7 +21,7 @@ export const createTaskRouter = () => {
     }
   });
 
-  router.get("/tasks/:id", async (req, res, next) => {
+  router.get("/tasks/:id", validate(TaskIdRequest), async (req, res, next) => {
     try {
       const { id } = req.params;
       const result = await taskController.getTaskById(
@@ -32,7 +33,7 @@ export const createTaskRouter = () => {
     }
   });
 
-  router.post("/tasks", async (req, res, next) => {
+  router.post("/tasks", validate(TaskCreateRequest), async (req, res, next) => {
     try {
       const { genreId, name, status } = req.body;
       const taskCreateRequest = new TaskCreateRequest(genreId, name, status);
@@ -43,32 +44,40 @@ export const createTaskRouter = () => {
     }
   });
 
-  router.put("/tasks/:id", async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const { genreId, name, status } = req.body;
-      const taskUpdateRequest = new TaskUpdateRequest(
-        Number(id),
-        genreId,
-        name,
-        status
-      );
-      const result = await taskController.updateTask(taskUpdateRequest);
-      res.status(StatusCodes.OK).json(result);
-    } catch (err) {
-      next(err);
+  router.put(
+    "/tasks/:id",
+    validate(TaskUpdateRequest),
+    async (req, res, next) => {
+      try {
+        const { id } = req.params;
+        const { genreId, name, status } = req.body;
+        const taskUpdateRequest = new TaskUpdateRequest(
+          Number(id),
+          genreId,
+          name,
+          status
+        );
+        const result = await taskController.updateTask(taskUpdateRequest);
+        res.status(StatusCodes.OK).json(result);
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
-  router.delete("/tasks/:id", async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      await taskController.deleteTask(new TaskIdRequest(Number(id)));
-      res.status(StatusCodes.NO_CONTENT).send();
-    } catch (err) {
-      next(err);
+  router.delete(
+    "/tasks/:id",
+    validate(TaskIdRequest),
+    async (req, res, next) => {
+      try {
+        const { id } = req.params;
+        await taskController.deleteTask(new TaskIdRequest(Number(id)));
+        res.status(StatusCodes.NO_CONTENT).send();
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
   return router;
 };
