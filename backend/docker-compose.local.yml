@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  todo-application-local:
+    image: todo-application-mysql
+    container_name: todo-application-mysql
+    restart: always
+    ports:
+      - "3365:3306"
+    volumes:
+      # 永続データ
+      - ./docker/db/mysql/data:/var/lib/mysql
+      # 起動時のデータ初期化
+      - ./docker/db/mysql/sql:/docker-entrypoint-initdb.d
+      - ./docker/db/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todo
+      MYSQL_USER: todo
+      MYSQL_PASSWORD: todo
+      TZ: "Asia/Tokyo"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
+    build:
+      context: .
+      dockerfile: ./ToDoApplication_Dockerfile_MySQL
+    networks:
+      - todo-application-network
+
+networks:
+  todo-application-network:
+    driver: bridge
