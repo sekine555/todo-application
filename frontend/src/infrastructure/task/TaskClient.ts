@@ -6,6 +6,11 @@ import { inject, injectable } from "inversify";
 import "reflect-metadata";
 import ITaskClient from "./ITaskClient";
 import { GetTaskResponse, TaskResponse } from "@/types/API/task/TaskResponse";
+import {
+  TaskCreateRequest,
+  TaskUpdateRequest,
+  TaskDeleteRequest,
+} from "@/types/API/task/TaskRequest";
 
 @injectable()
 class TaskClient implements ITaskClient {
@@ -37,6 +42,36 @@ class TaskClient implements ITaskClient {
       .then((res) => {
         const getTaskResponse = new GetTaskResponse(res.data);
         return validateObject(getTaskResponse);
+      });
+  }
+
+  public async createTask(request: TaskCreateRequest): Promise<TaskResponse> {
+    return await this.client
+      .post<TaskResponse>("/api/v1/tasks", request, getDefaultRequestInit())
+      .then((res) => {
+        const getTaskResponse = new GetTaskResponse(res.data);
+        return validateObject(getTaskResponse);
+      });
+  }
+  public async updateTask(request: TaskUpdateRequest): Promise<TaskResponse> {
+    // リクエストのオブジェクトからidとそれ以外のプロパティーを分割代入で取り出す
+    const { id, ...taskData } = request;
+    return await this.client
+      .put<TaskResponse>(
+        `/api/v1/tasks/${id}`,
+        taskData,
+        getDefaultRequestInit(),
+      )
+      .then((res) => {
+        const getTaskResponse = new GetTaskResponse(res.data);
+        return validateObject(getTaskResponse);
+      });
+  }
+  public async deleteTask(request: TaskDeleteRequest): Promise<void> {
+    await this.client
+      .delete<void>(`/api/v1/tasks/${request.id}`, getDefaultRequestInit())
+      .then((res) => {
+        return res.data;
       });
   }
 }
