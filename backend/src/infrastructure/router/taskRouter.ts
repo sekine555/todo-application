@@ -73,7 +73,7 @@ export const createTaskRouter = () => {
       try {
         const { id } = req.params;
         await taskController.markTaskAsCompleted(new TaskIdRequest(id));
-        res.status(StatusCodes.NO_CONTENT).send();
+        res.status(StatusCodes.OK).json({ message: "success" });
       } catch (err) {
         next(err);
       }
