@@ -1,8 +1,8 @@
 import { FC } from "react";
 import { Props as ToDoContainerProps } from "@/features/todo/ToDoContainer";
+import { formatDateYYYYMMDD } from "@/utils/dataUtils";
 
 interface Props extends ToDoContainerProps {
-  genres: { id: number; name: string }[];
   isAddingTask: boolean;
   setIsAddingTask: (val: boolean) => void;
   newTaskName: string;
@@ -19,8 +19,8 @@ interface Props extends ToDoContainerProps {
 }
 
 const ToDo: FC<Props> = ({
-  tasks,
   genres,
+  tasks,
   isAddingTask,
   setIsAddingTask,
   newTaskName,
@@ -50,25 +50,25 @@ const ToDo: FC<Props> = ({
           <input
             value={newTaskName}
             onChange={(e) => setNewTaskName(e.target.value)}
-            placeholder="新しいタスクの名前"
+            placeholder="タスク"
             className="mr-2 rounded border p-1"
           />
 
-          <button onClick={onClickAddTask} className="mr-2">
+          <button className="ml-2" onClick={onClickAddTask} className="mr-2">
             タスクを追加する
           </button>
 
-          <button onClick={() => setIsAddingTask(false)}>キャンセルする</button>
+          <button className="ml-2" onClick={() => setIsAddingTask(false)}>
+            キャンセルする
+          </button>
         </div>
       ) : (
         <div className="mb-8">
-          <button onClick={() => setIsAddingTask(true)}>
-            新しいタスクを追加
-          </button>
+          <button onClick={() => setIsAddingTask(true)}>タスクを追加</button>
         </div>
       )}
 
-      <section>
+      <section className="mb-6">
         <h2 className="mb-4 text-xl">未完了のタスク</h2>
         {tasks
           .filter((task) => task.status === 0)
@@ -76,7 +76,23 @@ const ToDo: FC<Props> = ({
             <div key={task.id} className="mb-2 rounded bg-white p-4 shadow">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <strong className="mr-2">{task.genre.name}</strong>
+                  <select
+                    value={task.genre.id}
+                    onChange={(e) =>
+                      onClickUpdateTask(
+                        task.id,
+                        task.name,
+                        Number(e.target.value),
+                      )
+                    }
+                    className="mr-2"
+                  >
+                    {genres.map((genre) => (
+                      <option key={genre.id} value={genre.id}>
+                        {genre.name}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     defaultValue={task.name}
                     onBlur={(e) =>
@@ -85,12 +101,12 @@ const ToDo: FC<Props> = ({
                     className="rounded border p-1"
                   />
                   <span className="ml-2 text-gray-500">
-                    {task.registrationDate}
+                    {formatDateYYYYMMDD(task.registrationDate)}
                   </span>
                 </div>
                 <button
                   onClick={() => onClickCompleteTask(task.id)}
-                  className="rounded bg-green-500 px-2 py-1 text-white"
+                  className="ml-2 rounded bg-green-500 px-2 py-1 text-white"
                 >
                   完了
                 </button>
@@ -108,7 +124,9 @@ const ToDo: FC<Props> = ({
               <div className="flex items-center justify-between">
                 <strong className="mr-2">{task.genre.name}</strong>
                 {task.name}
-                <span className="text-gray-500">{task.registrationDate}</span>
+                <span className="text-gray-500">
+                  {formatDateYYYYMMDD(task.registrationDate)}
+                </span>
               </div>
             </div>
           ))}

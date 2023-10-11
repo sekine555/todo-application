@@ -6,6 +6,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Asia/Tokyo");
 
-export const formatDate = (inputDate: string): string => {
+export const formatDateYYYYMMDDHHMMSS = (inputDate: string): string => {
   return dayjs.tz(inputDate).format("YYYY.MM.DD HH:mm:ss");
+};
+
+export const formatDateYYYYMMDD = (inputDate: string): string => {
+  return dayjs.tz(inputDate).format("YYYY.MM.DD");
 };

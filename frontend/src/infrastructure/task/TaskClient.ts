@@ -25,7 +25,7 @@ class TaskClient implements ITaskClient {
 
   public async fetchTasks(): Promise<TaskResponse[]> {
     return await this.client
-      .get<TaskResponse[]>("/api/v1/tasks", getDefaultRequestInit())
+      .get<TaskResponse[]>("/api/v1/tasks")
       .then((res) => {
         return Promise.all(
           res.data.map((taskResponse) => {
@@ -38,7 +38,7 @@ class TaskClient implements ITaskClient {
 
   public async findTaskById(taskId: number): Promise<TaskResponse> {
     return await this.client
-      .get<TaskResponse>(`/api/v1/tasks/${taskId}`, getDefaultRequestInit())
+      .get<TaskResponse>(`/api/v1/tasks/${taskId}`)
       .then((res) => {
         const getTaskResponse = new GetTaskResponse(res.data);
         return validateObject(getTaskResponse);
@@ -47,7 +47,7 @@ class TaskClient implements ITaskClient {
 
   public async createTask(request: TaskCreateRequest): Promise<TaskResponse> {
     return await this.client
-      .post<TaskResponse>("/api/v1/tasks", request, getDefaultRequestInit())
+      .post<TaskResponse>("/api/v1/tasks", request)
       .then((res) => {
         const getTaskResponse = new GetTaskResponse(res.data);
         return validateObject(getTaskResponse);
@@ -69,7 +69,7 @@ class TaskClient implements ITaskClient {
   }
   public async deleteTask(request: TaskDeleteRequest): Promise<void> {
     await this.client
-      .delete<void>(`/api/v1/tasks/${request.id}`, getDefaultRequestInit())
+      .delete<void>(`/api/v1/tasks/${request.id}`)
       .then((res) => {
         return res.data;
       });

@@ -1,53 +1,84 @@
 import { TaskResponse } from "@/types/API/task/TaskResponse";
-import { FC, useState } from "react";
+import { GenreResponse } from "@/types/API/genre/GenreResponse";
+import { FC, useEffect, useState } from "react";
 import ToDo from "./ToDo";
-
-const genres = [
-  {
-    id: 1,
-    name: "仕事",
-  },
-  {
-    id: 2,
-    name: "プライベート",
-  },
-];
+import { container } from "@/config/inversify.config";
+import { TYPES } from "@/config/types";
+import ITaskClient from "@/infrastructure/task/ITaskClient";
+import {
+  TaskCreateRequest,
+  TaskUpdateRequest,
+  TaskDeleteRequest,
+} from "@/types/API/task/TaskRequest";
 
 export interface Props {
+  genres: GenreResponse[];
   tasks: TaskResponse[];
 }
 
-const ToDoContainer: FC<Props> = ({ tasks }) => {
+const ToDoContainer: FC<Props> = ({ genres, tasks }) => {
+  const [currentTasks, setCurrentTasks] = useState<TaskResponse[]>(tasks);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTaskName, setNewTaskName] = useState("");
-  const [newTaskGenreId, setNewTaskGenreId] = useState(genres[0].id);
+  const [newTaskGenreId, setNewTaskGenreId] = useState(0);
 
-  const onClickAddTask = () => {
-    console.log(newTaskName, newTaskGenreId);
-    setIsAddingTask(false);
-    setNewTaskName("");
-    setNewTaskGenreId(genres[0].id);
+  useEffect(() => {
+    if (genres.length > 0) {
+      setNewTaskGenreId(genres[0].id);
+    }
+  }, [genres]);
+
+  const fetchTasks = async () => {
+    const taskClient = container.get<ITaskClient>(TYPES.ITaskClient);
+    const fetchedTasks = await taskClient.fetchTasks();
+    setCurrentTasks(fetchedTasks);
   };
 
-  const onClickUpdateTask = (
+  const onClickAddTask = async () => {
+    const taskClient = container.get<ITaskClient>(TYPES.ITaskClient);
+    const taskCreateRequest: TaskCreateRequest = {
+      name: newTaskName,
+      genreId: newTaskGenreId,
+      status: 0,
+    };
+    const createdTask = await taskClient.createTask(taskCreateRequest);
+    setCurrentTasks([createdTask, ...currentTasks]);
+    setIsAddingTask(false);
+    setNewTaskName("");
+  };
+
+  const onClickUpdateTask = async (
     taskId: number,
     updatedName: string,
     updatedGenreId: number,
   ) => {
-    // API call for updating task goes here
-    console.log(taskId, updatedName, updatedGenreId);
+    const taskClient = container.get<ITaskClient>(TYPES.ITaskClient);
+    const taskUpdateRequest: TaskUpdateRequest = {
+      id: taskId,
+      name: updatedName,
+      genreId: updatedGenreId,
+      status: 0,
+    };
+    const updatedTask = await taskClient.updateTask(taskUpdateRequest);
+    setCurrentTasks(
+      currentTasks.map((task) => (task.id === taskId ? updatedTask : task)),
+    );
   };
 
-  const onClickCompleteTask = (taskId: number) => {
-    // API call for completing the task goes here
-    console.log(taskId);
+  const onClickCompleteTask = async (taskId: number) => {
+    const taskClient = container.get<ITaskClient>(TYPES.ITaskClient);
+    const taskDeleteRequest: TaskDeleteRequest = {
+      id: taskId,
+    };
+    await taskClient.deleteTask(taskDeleteRequest);
+    await fetchTasks();
   };
 
   return (
     <>
       <ToDo
-        tasks={tasks}
         genres={genres}
+        tasks={currentTasks}
         isAddingTask={isAddingTask}
         setIsAddingTask={setIsAddingTask}
         newTaskName={newTaskName}
