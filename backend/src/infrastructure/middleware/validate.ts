@@ -4,13 +4,21 @@ import express from "express";
 import ValidationException from "@/domain/Error/exception/ValidationException";
 
 export const validate = <T extends object>(
-  type: new (...args: any[]) => T
+  type: new (...args: any[]) => T,
+  source: "body" | "params" = "body"
 ): express.RequestHandler => {
   return async (req, _, next) => {
     try {
-      const input = plainToClass(type, req.body);
-      await validateOrReject(input);
-      req.body = input;
+      const inputSource = source === "body" ? req.body : req.params;
+      const validatedInput = plainToClass(type, inputSource);
+      await validateOrReject(validatedInput);
+
+      if (source === "body") {
+        req.body = validatedInput;
+      } else if (source === "params") {
+        req.params = validatedInput as any;
+      }
+
       next();
     } catch (errors) {
       if (errors instanceof Array && errors[0] instanceof ValidationError) {

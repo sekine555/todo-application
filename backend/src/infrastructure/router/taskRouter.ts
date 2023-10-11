@@ -21,17 +21,19 @@ export const createTaskRouter = () => {
     }
   });
 
-  router.get("/tasks/:id", validate(TaskIdRequest), async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const result = await taskController.getTaskById(
-        new TaskIdRequest(Number(id))
-      );
-      res.status(StatusCodes.OK).json(result);
-    } catch (err) {
-      next(err);
+  router.get(
+    "/tasks/:id",
+    validate(TaskIdRequest, "params"),
+    async (req, res, next) => {
+      try {
+        const { id } = req.params;
+        const result = await taskController.getTaskById(new TaskIdRequest(id));
+        res.status(StatusCodes.OK).json(result);
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
   router.post("/tasks", validate(TaskCreateRequest), async (req, res, next) => {
     try {
@@ -46,18 +48,17 @@ export const createTaskRouter = () => {
 
   router.put(
     "/tasks/:id",
-    validate(TaskUpdateRequest),
+    validate(TaskIdRequest, "params"),
+    validate(TaskUpdateRequest, "body"),
     async (req, res, next) => {
       try {
         const { id } = req.params;
         const { genreId, name, status } = req.body;
-        const taskUpdateRequest = new TaskUpdateRequest(
-          Number(id),
-          genreId,
-          name,
-          status
+        const taskUpdateRequest = new TaskUpdateRequest(genreId, name, status);
+        const result = await taskController.updateTask(
+          new TaskIdRequest(id),
+          taskUpdateRequest
         );
-        const result = await taskController.updateTask(taskUpdateRequest);
         res.status(StatusCodes.OK).json(result);
       } catch (err) {
         next(err);
@@ -67,11 +68,11 @@ export const createTaskRouter = () => {
 
   router.delete(
     "/tasks/:id",
-    validate(TaskIdRequest),
+    validate(TaskIdRequest, "params"),
     async (req, res, next) => {
       try {
         const { id } = req.params;
-        await taskController.deleteTask(new TaskIdRequest(Number(id)));
+        await taskController.deleteTask(new TaskIdRequest(id));
         res.status(StatusCodes.NO_CONTENT).send();
       } catch (err) {
         next(err);

@@ -28,7 +28,7 @@ class TaskController {
   public async getTaskById(
     taskIdRequest: TaskIdRequest
   ): Promise<TaskResponse> {
-    const taskDto = await this._taskService.findById(taskIdRequest.id);
+    const taskDto = await this._taskService.findById(taskIdRequest.toNumber());
     return new TaskResponse(taskDto);
   }
 
@@ -45,10 +45,11 @@ class TaskController {
   }
 
   public async updateTask(
+    taskIdRequest: TaskIdRequest,
     taskUpdateRequest: TaskUpdateRequest
   ): Promise<TaskResponse> {
     const task = new TaskUpdateCommand(
-      taskUpdateRequest.id,
+      taskIdRequest.toNumber(),
       taskUpdateRequest.genreId,
       taskUpdateRequest.name,
       taskUpdateRequest.status
@@ -58,7 +59,7 @@ class TaskController {
   }
 
   public async deleteTask(taskIdRequest: TaskIdRequest): Promise<void> {
-    await this._taskService.delete(taskIdRequest.id);
+    await this._taskService.delete(taskIdRequest.toNumber());
   }
 }
 
