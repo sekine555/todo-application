@@ -6,6 +6,7 @@ import { container } from "@/config/inversify.config";
 import { TYPES } from "@/config/types";
 import ITaskClient from "@/infrastructure/task/ITaskClient";
 import { TaskResponse } from "@/types/API/task/TaskResponse";
+import Todo from "@/features/todo";
 
 const TopPage: NextPage = () => {
   const [tasks, setTasks] = useState<TaskResponse[]>([]);
@@ -14,7 +15,6 @@ const TopPage: NextPage = () => {
     const fetchTasks = async () => {
       const taskClient = container.get<ITaskClient>(TYPES.ITaskClient);
       const fetchedTasks = await taskClient.fetchTasks();
-      console.log("fetchedTasks:", fetchedTasks);
       setTasks(fetchedTasks);
     };
 
@@ -25,7 +25,9 @@ const TopPage: NextPage = () => {
     <>
       <Head />
       <Header />
-      <div className={"flex min-h-screen"}>TODO</div>
+      <div className={"flex min-h-screen"}>
+        <Todo tasks={tasks} />
+      </div>
     </>
   );
 };
