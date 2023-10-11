@@ -51,4 +51,13 @@ export class TaskOperations extends BaseMySqlOperations<TaskEntity> {
     const repository = await this.getRepository(entityManager);
     await repository.delete(taskId);
   }
+
+  public async updateTaskStatus(
+    entityManager: EntityManager,
+    taskId: number,
+    status: number
+  ): Promise<void> {
+    const repository = await this.getRepository(entityManager);
+    await repository.update(taskId, { status });
+  }
 }

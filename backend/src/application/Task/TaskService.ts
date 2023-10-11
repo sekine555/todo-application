@@ -6,6 +6,7 @@ import { TaskDto } from "./TaskDto";
 import { TaskCreateCommand } from "./TaskCreateCommand";
 import { TaskUpdateCommand } from "./TaskUpdateCommand";
 import ITaskRepository from "@/domain/Task/ITaskRepository";
+import { Status } from "@/domain/Task/Status";
 
 @injectable()
 class TaskService implements ITaskService {
@@ -36,6 +37,11 @@ class TaskService implements ITaskService {
   public async update(task: TaskUpdateCommand): Promise<TaskDto> {
     const updatedTask = await this._taskRepository.update(task);
     return new TaskDto(updatedTask);
+  }
+
+  public async markTaskAsCompleted(id: number): Promise<void> {
+    // タスク完了させるため、ステータスを1を渡す
+    await this._taskRepository.updateTaskStatus(id, new Status(1));
   }
 
   public async delete(id: number): Promise<void> {

@@ -58,6 +58,12 @@ class TaskController {
     return new TaskResponse(taskDto);
   }
 
+  public async markTaskAsCompleted(
+    taskIdRequest: TaskIdRequest
+  ): Promise<void> {
+    await this._taskService.markTaskAsCompleted(taskIdRequest.toNumber());
+  }
+
   public async deleteTask(taskIdRequest: TaskIdRequest): Promise<void> {
     await this._taskService.delete(taskIdRequest.toNumber());
   }

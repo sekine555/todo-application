@@ -9,6 +9,7 @@ import DataSourceManager from "../common/DataSourceManager";
 import { TaskOperations } from "./TaskOperations";
 import { TaskEntity } from "@/infrastructure/entity/TaskEntity";
 import DatabaseOperationException from "@/domain/Error/exception/DatabaseOperationException";
+import { Status } from "@/domain/Task/Status";
 
 @injectable()
 class TaskRepository implements ITaskRepository {
@@ -90,6 +91,25 @@ class TaskRepository implements ITaskRepository {
     } catch (error) {
       throw new DatabaseOperationException(
         `@TaskRepository >>> update error: ${error.message}`
+      );
+    } finally {
+      await this._dataSourceManager.destroy();
+    }
+  }
+
+  public async updateTaskStatus(id: number, status: Status): Promise<void> {
+    try {
+      const db = await this._dataSourceManager.initialize();
+      await db.transaction(async (txManager) => {
+        await this._taskOperations.updateTaskStatus(
+          txManager,
+          id,
+          status.getValue()
+        );
+      });
+    } catch (error) {
+      throw new DatabaseOperationException(
+        `@TaskRepository >>> updateTaskStatus error: ${error.message}`
       );
     } finally {
       await this._dataSourceManager.destroy();
