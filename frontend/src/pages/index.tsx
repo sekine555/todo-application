@@ -60,7 +60,7 @@ const TopPage: NextPage = () => {
     <>
       <Head />
       <Header />
-      <div className={"flex min-h-screen"}>
+      <div>
         {isLoading ? <Loading /> : <Todo genres={genres} tasks={tasks} />}
       </div>
     </>

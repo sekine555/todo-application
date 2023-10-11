@@ -11,12 +11,14 @@ const Header: FC<Props> = (props) => {
   };
 
   return (
-    <header className="flex items-center justify-between bg-blue-500 px-6 py-2">
+    <header className="flex w-full items-center justify-between bg-blue-500 px-6 py-4">
       <Link href={"/"}>
-        <p className="text-2xl font-bold text-white">TODOアプリケーション</p>
+        <p className="mr-4 cursor-pointer text-2xl font-bold text-white">
+          TODOアプリケーション
+        </p>
       </Link>
       <div>
-        <Menu as="div" className="relative hidden sm:block">
+        <Menu as="div" className="relative sm:inline-block">
           <Menu.Button className="p-2">
             <Image
               src={"/images/header/person.svg"}
@@ -38,7 +40,7 @@ const Header: FC<Props> = (props) => {
               <div className="p-2">
                 <Menu.Item>
                   <Link href={"#"} className="p-2 text-sm">
-                    メニューアイテム1
+                    アイテム1
                   </Link>
                 </Menu.Item>
                 <Menu.Item>
